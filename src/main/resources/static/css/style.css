@@ -1,0 +1,35 @@
+         .login {
+            background-image: url('../img/fondomain.jpg');
+            background-size: cover; /* Para que la imagen cubra todo el fondo */
+            background-repeat: no-repeat; /* Para que la imagen no se repita */
+            /* Puedes ajustar otros estilos según tu preferencia */
+         }
+
+         .navbar-nav .nav-link {
+             color: white;
+         }
+
+         .navbar-brand{
+            color:white
+         }
+
+         .navbar-nav .nav-link.active {
+             color: white;
+         }
+
+         .index {
+            background-image: url('../img/fondodb.jpg');
+            background-size: cover; /* Para que la imagen cubra todo el fondo */
+            background-repeat: no-repeat; /* Para que la imagen no se repita */
+            /* Puedes ajustar otros estilos según tu preferencia */
+         }
+
+         .dropdown-item{
+            color:white;
+         }
+
+         td{
+            width: auto;
+            height: auto;
+         }
+
