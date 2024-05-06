@@ -16,14 +16,12 @@ public class BankLoan {
     private BigDecimal interestRate;
     private int duration;
 
-   // @ManyToOne
-    //@JoinColumn(name = "customerId") //llave foranea a la tabla/clase Customer
-    //private Customer customer;
-    private long customerId;
-    private long bankId;
-    //@ManyToOne
-    //@JoinColumn(name = "bankId") //llave foranea a la tabla/clase Bank
-    //private Bank bank;
+    @ManyToOne
+    @JoinColumn(name = "customerId") //llave foranea a la tabla/clase Customer
+    private Customer customer;
+    @ManyToOne
+    @JoinColumn(name = "bankId") //llave foranea a la tabla/clase Bank
+    private Bank bank;
 
 
 }
