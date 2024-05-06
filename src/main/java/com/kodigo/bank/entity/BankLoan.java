@@ -13,7 +13,7 @@ public class BankLoan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int loanId;
     private BigDecimal amount;
-    private BigDecimal interestRate;
+    private BigDecimal interest_rate;
     private int duration;
 
    // @ManyToOne
