@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 @CrossOrigin(origins = "*")
-
 @RestController
 @RequestMapping(path ="api/v1/bankLoan")
 public class BankLoanController {

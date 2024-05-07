@@ -10,33 +10,51 @@
 <form id="bankLoanForm">
     <label for="amount">Loan Amount:</label><br>
     <input type="number" id="amount" name="amount"><br>
-    <label for="interestRate">Interest Rate:</label><br>
-    <input type="number" id="interestRate" name="interestRate"><br>
+    <label for="interest_rate">Interest Rate:</label><br>
+    <input type="number" id="interest_rate" name="interest_rate"><br>
     <label for="duration">Loan Duration:</label><br>
     <input type="number" id="duration" name="duration"><br>
-    <input type="button" value="Submit" id="submitButton">
+    <input type="hidden" id="customerId" name="customerId"><br>
+    <input type="hidden" id="bankId" name="bankId"><br>
+
+    <a href="#" id="submitButton">Submit</a>
 </form>
 
 <script>
-    $("#submitButton").click(function() {
-        var formData = {
-            amount: $("#amount").val(),
-            interestRate: $("#interestRate").val(),
-            duration: $("#duration").val()
-        };
+    $(document).ready(function(){
+        // Captura customerId y bankId de la URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var customerId = urlParams.get('customerId');
+        var bankId = urlParams.get('bankId');
 
-        $.ajax({
-            type: "POST",
-            url: "http://localhost:8080/api/v1/bankLoan",
-            data: JSON.stringify(formData),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data) {
-                console.log("Data saved successfully!");
-            },
-            error: function(error) {
-                console.log("Error saving data: " + error);
-            }
+        // Establece los valores en los campos hidden
+        $('#customerId').val(customerId);
+        $('#bankId').val(bankId);
+
+        // Al hacer clic en el enlace
+        $("#submitButton").click(function(e) {
+            e.preventDefault(); // Evita que el enlace se comporte como un enlace normal
+            var formData = {
+                customerId: $("#customerId").val(),
+                bankId: $("#bankId").val(),
+                amount: $("#amount").val(),
+                interest_rate: $("#interest_rate").val(),
+                duration: $("#duration").val(),
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:8080/api/v1/bankLoan",
+                data: JSON.stringify(formData),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(data) {
+                    console.log("Data saved successfully!");
+                },
+                error: function(error) {
+                    console.log("Error saving data: " + error);
+                }
+            });
         });
     });
 </script>
