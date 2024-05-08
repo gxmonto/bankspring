@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class LoanPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int paymentId;
+    private long paymentId;
     private BigDecimal amount;
     private LocalDate date;
 

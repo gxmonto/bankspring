@@ -11,14 +11,16 @@ import java.math.BigDecimal;
 public class BankLoan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int loanId;
+    private long loanId;
     private BigDecimal amount;
-    private BigDecimal interestRate;
-    private int duration;
+    private BigDecimal interest_rate;
+    private long duration;
 
     @ManyToOne
     @JoinColumn(name = "customerId") //llave foranea a la tabla/clase Customer
     private Customer customer;
+    //private long customerId;
+    //private long bankId;
     @ManyToOne
     @JoinColumn(name = "bankId") //llave foranea a la tabla/clase Bank
     private Bank bank;

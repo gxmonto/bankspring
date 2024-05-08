@@ -1,7 +1,6 @@
 package com.kodigo.bank.service;
 
 import com.kodigo.bank.entity.BankLoan;
-import com.kodigo.bank.entity.LoanPayment;
 import com.kodigo.bank.repository.BankLoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
