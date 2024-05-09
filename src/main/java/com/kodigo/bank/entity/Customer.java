@@ -14,7 +14,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_Id")
     private Long customerId;
-    private String customerType;
+    private String account_Type;
     private BigDecimal balance;
 
     @ManyToOne

@@ -13,7 +13,7 @@ CREATE TABLE People (
 -- Tabla Customer
 CREATE TABLE Customer (
     customer_Id BIGINT PRIMARY KEY auto_increment not null,
-    customerType VARCHAR(255),
+    account_Type VARCHAR(255),
     balance DECIMAL(10, 2), -- Agregado para llevar el saldo del cliente
     FOREIGN KEY (customer_Id) REFERENCES People(id)
 );
