@@ -12,7 +12,7 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<com.kodigo.bank.entity.Transaction> getAllTransactions() {
+    public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
