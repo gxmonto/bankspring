@@ -5,31 +5,24 @@ import com.kodigo.bank.repository.CreditCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class CreditCardService {
-
     @Autowired
-    private CreditCardRepository creditCardRepository;
+    CreditCardRepository creditCardRepository;
 
-    public List<CreditCard> getAllCreditCards() {
+    public List<CreditCard> getCreditCards() {
         return creditCardRepository.findAll();
     }
 
-    public CreditCard getCreditCardById(Long id) {
-        return creditCardRepository.findById(id).orElseThrow(() -> new RuntimeException("Credit card not found"));
+    public Optional<CreditCard> getCreditCardById(Long id) {
+        return creditCardRepository.findById(id);
     }
 
-    public CreditCard createCreditCard(CreditCard creditCard) {
-        return creditCardRepository.save(creditCard);
-    }
-
-    public CreditCard updateCreditCard(Long id, CreditCard creditCard) {
-        CreditCard existingCreditCard = getCreditCardById(id);
-        existingCreditCard.setCreditLimit(creditCard.getCreditLimit());
-        existingCreditCard.setAnnualFee(creditCard.getAnnualFee());
-        existingCreditCard.setCustomer(creditCard.getCustomer());
-        existingCreditCard.setBank(creditCard.getBank());
-        return creditCardRepository.save(existingCreditCard);
+    public void saveOrUpdateCreditCard(CreditCard creditCard) {
+        creditCardRepository.save(creditCard);
     }
 
     public void deleteCreditCard(Long id) {

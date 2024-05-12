@@ -1,28 +1,27 @@
 package com.kodigo.bank.service;
 
+import com.kodigo.bank.entity.Transaction;
 import com.kodigo.bank.repository.TransactionRepository;
-import jakarta.transaction.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
     @Autowired
-    private TransactionRepository transactionRepository;
-
-    public List<Transaction> getAllTransactions() {
+    TransactionRepository transactionRepository;
+    public List<Transaction> getTransactions(){
         return transactionRepository.findAll();
     }
-
-    public Transaction createTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
+    public Optional<Transaction> getTransaction(Long id){
+        return transactionRepository.findById(id);
     }
-
-    public Transaction getTransaction(Long transactionId) {
-        return (Transaction) transactionRepository.findById(transactionId).orElseThrow();
+    public void saveOrUpdate(Transaction transaction){
+        transactionRepository.save(transaction);
     }
-
-    // Additional service methods can be added here
+    public void delete(Long id){
+        transactionRepository.deleteById(id);
+    }
 }

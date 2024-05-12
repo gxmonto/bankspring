@@ -27,4 +27,5 @@ public class CreditCard {
     private Bank bank;
 
     // Getters and setters
+
 }
