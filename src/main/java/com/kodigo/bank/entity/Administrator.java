@@ -3,6 +3,7 @@ package com.kodigo.bank.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -11,13 +12,14 @@ import java.util.List;
 public class Administrator {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "admin_Id")
-    private Long adminId;
+    @Column(name = "administrator_Id")
+    private Long administratorId;
 
     @ManyToOne
     @JoinColumn(name = "id")
     private People people;
 
     @OneToMany(mappedBy = "administrator")
-    private List<Administrator> administrators;
+    private List<BankLoan> bankLoans;
 }
+

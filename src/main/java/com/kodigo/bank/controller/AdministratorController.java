@@ -28,7 +28,7 @@ public class AdministratorController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveOrUpdate(@RequestBody Administrator administrator) {
-        administratorService.saveOrUpdateAdministrator(administrator);
+        administratorService.saveOrUpdateCustomer(administrator);
     }
 
     @DeleteMapping("/{id}")

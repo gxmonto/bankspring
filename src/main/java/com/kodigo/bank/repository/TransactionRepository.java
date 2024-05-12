@@ -7,8 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-
-public interface TransactionRepository extends JpaRepository<Transaction, Long>{
-    List<jakarta.transaction.Transaction> findByCustomer_CustomerId(Long customerId);
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+    // Custom repository methods can be added here
 }
-

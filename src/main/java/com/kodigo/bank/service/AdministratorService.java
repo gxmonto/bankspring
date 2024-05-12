@@ -5,6 +5,7 @@ import com.kodigo.bank.repository.AdministratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -12,7 +13,11 @@ public class AdministratorService {
     @Autowired
     AdministratorRepository administratorRepository;
 
-    public Optional<Administrator> getCustomerById(Long id) {
+    public List<Administrator> getAdministrators() {
+        return administratorRepository.findAll();
+    }
+
+    public Optional<Administrator> getAdministratorById(Long id) {
         return administratorRepository.findById(id);
     }
 
@@ -24,4 +29,3 @@ public class AdministratorService {
         administratorRepository.deleteById(id);
     }
 }
-
