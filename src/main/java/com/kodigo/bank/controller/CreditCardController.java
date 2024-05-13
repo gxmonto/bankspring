@@ -20,15 +20,15 @@ public class CreditCardController {
     }
     @GetMapping("/{creditCardId}")
     public Optional<CreditCard> getById(@PathVariable("CreditCardId") Long creditCardId){
-        return creditCardService.getCreditCard(creditCardId);
+        return creditCardService.getCreditCardById(creditCardId);
     }
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveUpdate(@RequestBody CreditCard creditCard){
-        creditCardService.saveOrUpdate(creditCard);
+        creditCardService.saveOrUpdateCreditCard(creditCard);
     }
     @DeleteMapping("/{creditCardId}")
     public void delete(@PathVariable("creditCardId") Long creditCardId){
-        creditCardService.delete(creditCardId);
+        creditCardService.deleteCreditCard(creditCardId);
     }
 
 }
