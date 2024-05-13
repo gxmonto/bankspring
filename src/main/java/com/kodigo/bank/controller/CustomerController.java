@@ -4,8 +4,10 @@ import com.kodigo.bank.entity.Customer;
 import com.kodigo.bank.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +37,11 @@ public class CustomerController {
     public void delete(@PathVariable("id") Long id) {
         customerService.deleteCustomer(id);
     }
+
+    @GetMapping("/{customerId}/balance")
+    public ResponseEntity<BigDecimal> getBalance(@PathVariable Long customerId) {
+        BigDecimal balance = customerService.getBalance(customerId);
+        return ResponseEntity.ok(balance);
+    }
+
 }

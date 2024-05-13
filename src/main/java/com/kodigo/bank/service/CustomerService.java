@@ -5,6 +5,7 @@ import com.kodigo.bank.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,5 +28,8 @@ public class CustomerService {
 
     public void deleteCustomer(Long id) {
         customerRepository.deleteById(id);
+    }
+    public BigDecimal getBalance(Long customerId) {
+        return customerRepository.getBalance(customerId);
     }
 }

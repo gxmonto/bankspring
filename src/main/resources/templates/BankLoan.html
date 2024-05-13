@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -8,39 +8,40 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <title>Loan Petition</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="index">
 <div class="container-fluid">
     <div class="row flex-nowrap">
-        <!-- MENU NAVBAR -->
+
         <div class="col-auto col-md-3 col-xl-1 px-sm-2 px-0 bg-dark">
             <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
                 <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                    <span class="fs-5 d-none d-sm-inline">e-Banca</span>
+                    <span class="fs-5 d-none d-sm-inline">e-Bank</span>
                 </a>
                 <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li class="nav-item">
-                        <a href="index.html" class="nav-link align-middle px-0 text-white">
+                        <a href="#" class="nav-link align-middle px-0 text-white">
                             <i class="fs-4 bi-house"></i> <span class="ms-1 d-none d-sm-inline">Home</span>
                         </a>
                     </li>
+
                 </ul>
                 <hr>
-                <!-- DROPDOWN DE USUARIO -->
+
                 <div class="dropdown pb-4">
-                    <a href="" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src="https://cdn-icons-png.flaticon.com/512/9131/9131529.png" alt="hugenerd" width="30" height="30" class="rounded-circle">
-                        <span class="d-none d-sm-inline mx-1">Usuario</span>
+                        <span class="d-none d-sm-inline mx-1">User</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear-fill"></i> Opciones</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Perfil</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear-fill"></i> Options</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profile</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="./login.html">Cerrar Sesion</a></li>
+                        <li><a class="dropdown-item" href="/login">Sign out</a></li>
                     </ul>
                 </div>
             </div>
@@ -55,16 +56,16 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">Withdraw</a>
+                                <a class="nav-link active" aria-current="page" href="/withdraw">Withdraw</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Deposit</a>
+                                <a class="nav-link" href="/deposit">Deposit</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="loan-management.html">Loan</a>
+                                <a class="nav-link" href="/loan-management">Loan</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Card</a>
+                                <a class="nav-link" href="card-management">Card</a>
                             </li>
                         </ul>
                     </div>
@@ -78,7 +79,7 @@
 
                 </section>
 
-                <!-- Tabla de Items -->
+
                 <section class="pt-5">
 
                     <div class="container">
@@ -87,16 +88,16 @@
                                 <form id="bankLoanForm" class="bank-loan-form mt-5">
                                     <h1 class="form-title text-center text-primary m-4">Bank Loan Form</h1>
                                     <div class="form-group">
-                                        <label for="loanAmount">Loan Amount:</label>
-                                        <input type="number" class="form-control" id="loanAmount" placeholder="Enter loan amount" required>
+                                        <label for="amount">Loan Amount:</label>
+                                        <input type="number" class="form-control" id="amount" placeholder="Enter loan amount" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="interestRate">Interest Rate:</label>
-                                        <input type="number" class="form-control" id="interestRate" placeholder="Enter interest rate" required>
+                                        <label for="interest_rate">Interest Rate:</label>
+                                        <input type="number" class="form-control" id="interest_rate" placeholder="Enter interest rate" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="loanDuration">Loan Duration:</label>
-                                        <input type="number" class="form-control" id="loanDuration" placeholder="Enter loan duration" required>
+                                        <label for="duration">Loan Duration:</label>
+                                        <input type="number" class="form-control" id="duration" placeholder="Enter loan duration" required>
                                         <input type="hidden" id="customerId" name="customerId"><br>
                                         <input type="hidden" id="bankId" name="bankId"><br>
                                     </div>
@@ -109,18 +110,18 @@
                     </div>
                     <script>
                         $(document).ready(function(){
-                            // Captura customerId y bankId de la URL
+
                             var urlParams = new URLSearchParams(window.location.search);
                             var customerId = urlParams.get('customerId');
                             var bankId = urlParams.get('bankId');
 
-                            // Establece los valores en los campos hidden
+
                             $('#customerId').val(customerId);
                             $('#bankId').val(bankId);
 
-                            // Al hacer clic en el enlace
+
                             $("#submitButton").click(function(e) {
-                                e.preventDefault(); // Evita que el enlace se comporte como un enlace normal
+                                e.preventDefault();
                                 var formData = {
                                     customerId: $("#customerId").val(),
                                     bankId: $("#bankId").val(),

@@ -1,8 +1,8 @@
          .login {
             background-image: url('../img/fondomain.jpg');
-            background-size: cover; /* Para que la imagen cubra todo el fondo */
-            background-repeat: no-repeat; /* Para que la imagen no se repita */
-            /* Puedes ajustar otros estilos según tu preferencia */
+            background-size: cover;
+            background-repeat: no-repeat;
+
          }
 
          .navbar-nav .nav-link {
@@ -19,9 +19,9 @@
 
          .index {
             background-image: url('../img/fondodb.jpg');
-            background-size: cover; /* Para que la imagen cubra todo el fondo */
-            background-repeat: no-repeat; /* Para que la imagen no se repita */
-            /* Puedes ajustar otros estilos según tu preferencia */
+            background-size: cover;
+            background-repeat: no-repeat;
+
          }
 
          .dropdown-item{

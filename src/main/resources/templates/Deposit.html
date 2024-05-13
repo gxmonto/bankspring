@@ -2,12 +2,14 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
+    <title>Title</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <title>Document</title>
+    <title>Loan Payment</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="index">
 <div class="container-fluid">
@@ -77,44 +79,66 @@
 
                 </section>
 
-
                 <section class="pt-5">
-                    <table class="table">
-                        <thead>
+                    <h1>Deposit</h1>
+                    <!-- Deposit form -->
+                    <form id="deposit-form">
+                        <label for="current-balance">Current Balance:</label>
+                        <span id="current-balance"></span>
+                        <br><br>
+                        <label for="amount">Amount to Deposit:</label>
+                        <input type="number" id="amount" name="amount" required>
+                        <br><br>
+                        <input type="hidden" id="customerId" name="customerId">
+                        <button type="submit">Deposit</button>
+                    </form>
 
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>
-                                <nav class="navbar bg-dark">
-                                    <div class="container-fluid">
-                                        <a class="navbar-brand" href="bank-loan">
-                                            <img src="../img/login.png" alt="Logo" class="d-inline-block align-text-top">
-                                            Loan Petition
-                                        </a>
-                                    </div>
-                                </nav>
-                            </td>
-                            <td>
-                                <nav class="navbar bg-dark">
-                                    <div class="container-fluid">
-                                        <a class="navbar-brand" href="loan-payment">
-                                            <img src="../img/login.png" alt="Logo" class="d-inline-block align-text-top">
-                                            Loan Payment
-                                        </a>
-                                    </div>
-                                </nav>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <script>
+                        $(document).ready(function() {
+  var customerId = $('#customerId').val();
+
+  $.ajax({
+    type: 'GET',
+    url: '/api/v1/customers/' + 1 + '/balance',
+    success: function(data) {
+      $('#current-balance').text(`Current Balance: ${data.balance}`);
+    },
+    error: function(xhr, status, error) {
+      console.error(`Error getting balance: ${error}`);
+      alert('Error getting balance. Please try again later.');
+    }
+  });
+console.log('CustomerId:', customerId); // Add this line
+  $('#deposit-form').submit(function(e) {
+    e.preventDefault();
+    var amount = $('#amount').val();
+    if (amount <= 0) {
+      alert('Please enter a positive amount to deposit.');
+      return;
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/v1/deposit-withdrawal/deposit',
+      data: JSON.stringify({ customerId: customerId, amount: amount }),
+      contentType: 'application/json',
+      success: function(data) {
+        $('#current-balance').text(`Current Balance: ${data.balance}`);
+      },
+      error: function(xhr, status, error) {
+  console.error(`Error getting balance: ${error} - Status: ${status} - XHR: ${xhr.statusText} - Response: ${xhr.responseText}`);
+  alert('Error getting balance. Please try again later.');
+}
+    });
+  });
+});
+                    </script>
                 </section>
-
-
             </main>
         </div>
     </div>
 </div>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </html>
+
+
