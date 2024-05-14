@@ -14,6 +14,7 @@ public class CustomerService {
     @Autowired
     CustomerRepository customerRepository;
 
+
     public List<Customer> getCustomers() {
         return customerRepository.findAll();
     }
@@ -29,6 +30,15 @@ public class CustomerService {
     public void deleteCustomer(Long id) {
         customerRepository.deleteById(id);
     }
+
+    public void deposit(Long customerId, BigDecimal amount) {
+        Customer customer = customerRepository.getById(customerId);
+        BigDecimal currentBalance = customer.getBalance();
+        BigDecimal newBalance = currentBalance.add(amount);
+        customer.setBalance(newBalance);
+        customerRepository.save(customer);
+    }
+
     public BigDecimal getBalance(Long customerId) {
         return customerRepository.getBalance(customerId);
     }

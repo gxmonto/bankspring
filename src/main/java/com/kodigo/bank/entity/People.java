@@ -16,7 +16,8 @@ public class People {
     private String surname;
     private String address;
     private String contact;
-
+    private String password;
+    private String username;
     @OneToMany(mappedBy = "people")
     private List<Customer> customers;
 }

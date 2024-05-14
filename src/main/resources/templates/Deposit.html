@@ -93,46 +93,26 @@
                         <button type="submit">Deposit</button>
                     </form>
 
-                    <script>
-                        $(document).ready(function() {
-  var customerId = $('#customerId').val();
+                    <<script>
+                    $(document).ready(function() {
+                        // Retrieve customerId from URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const customerId = urlParams.get('customerId');
 
-  $.ajax({
-    type: 'GET',
-    url: '/api/v1/customers/' + 1 + '/balance',
-    success: function(data) {
-      $('#current-balance').text(`Current Balance: ${data.balance}`);
-    },
-    error: function(xhr, status, error) {
-      console.error(`Error getting balance: ${error}`);
-      alert('Error getting balance. Please try again later.');
-    }
-  });
-console.log('CustomerId:', customerId); // Add this line
-  $('#deposit-form').submit(function(e) {
-    e.preventDefault();
-    var amount = $('#amount').val();
-    if (amount <= 0) {
-      alert('Please enter a positive amount to deposit.');
-      return;
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: '/api/v1/deposit-withdrawal/deposit',
-      data: JSON.stringify({ customerId: customerId, amount: amount }),
-      contentType: 'application/json',
-      success: function(data) {
-        $('#current-balance').text(`Current Balance: ${data.balance}`);
-      },
-      error: function(xhr, status, error) {
-  console.error(`Error getting balance: ${error} - Status: ${status} - XHR: ${xhr.statusText} - Response: ${xhr.responseText}`);
-  alert('Error getting balance. Please try again later.');
-}
-    });
-  });
-});
-                    </script>
+                        // Fetch and display current balance
+                        $.ajax({
+                            type: 'GET',
+                            url: '/api/v1/customers/' + customerId + '/balance',
+                            success: function(data) {
+                                $('#current-balance').text(data);
+                            },
+                            error: function(xhr, status, error) {
+                                console.error(`Error getting balance: ${error}`);
+                                alert('Error getting balance. Please try again later.');
+                            }
+                        });
+                    });
+                </script>
                 </section>
             </main>
         </div>
