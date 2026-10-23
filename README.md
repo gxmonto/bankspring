@@ -1,41 +1,46 @@
 # e-Bank (Spring Boot)
 
-## Requisitos
-- Java 21
-- Una base de datos: MySQL 8 (por defecto) o PostgreSQL / Supabase
+## Ejecutar con Docker (recomendado)
 
-Maven no hace falta instalarlo: usa `./mvnw` (o `mvnw.cmd` en Windows).
-
-## Ejecutar con MySQL local
+Solo necesitas [Docker Desktop](https://www.docker.com/products/docker-desktop/). No hace falta instalar Java, Maven ni MySQL.
 
 ```bash
-docker run -d --name bankdb -p 3306:3306 -e MYSQL_ROOT_PASSWORD=1407 -e MYSQL_DATABASE=bank_management mysql:8
-docker exec -i bankdb mysql -uroot -p1407 bank_management < db_bank_management.sql   # datos de ejemplo
-./mvnw spring-boot:run
+docker compose up --build
 ```
 
 Abre http://localhost:8080 y entra con `admin` / `123`.
 
-Para usar otra base o contraseña, sin cambiar el codigo:
+- La primera vez tarda unos minutos (descarga MySQL y compila el proyecto).
+- La base se llena con `db_bank_management.sql` la primera vez que arranca.
+- Los datos se guardan en un volumen de Docker: no se pierden al apagar los contenedores.
+
+Comandos utiles:
+
+| Que quieres hacer | Comando |
+|---|---|
+| Arrancar en segundo plano | `docker compose up -d --build` |
+| Ver los logs de la app | `docker compose logs -f app` |
+| Apagar | `docker compose down` |
+| Borrar la base y volver a cargar `db_bank_management.sql` | `docker compose down -v` |
+| Entrar a MySQL | `docker compose exec db mysql -uroot -p1407 bank_management` |
+
+MySQL tambien queda disponible desde tu PC (MySQL Workbench, DBeaver, etc.) en `localhost:3307`,
+usuario `root`, contraseña `1407`. Se usa el puerto 3307 para no chocar con un MySQL que ya tengas instalado.
+
+## Ejecutar sin Docker
+
+Necesitas Java 21 y un MySQL 8 con la base `bank_management` (puedes cargar `db_bank_management.sql`).
+Maven no hace falta instalarlo: usa `./mvnw` (o `mvnw.cmd` en Windows).
+
+```bash
+./mvnw spring-boot:run
+```
+
+Por defecto se conecta a `localhost:3306` con `root` / `1407`. Para cambiarlo sin tocar el codigo:
 
 ```bash
 DB_URL=jdbc:mysql://localhost:3306/bank_management DB_USERNAME=root DB_PASSWORD=secreto ./mvnw spring-boot:run
 ```
-
-## Ejecutar con Supabase
-
-En Supabase: Project Settings > Database > Connection string > JDBC, usando el **Session pooler**.
-
-```bash
-SPRING_PROFILES_ACTIVE=supabase \
-DB_URL="jdbc:postgresql://aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require" \
-DB_USERNAME="postgres.<project-ref>" \
-DB_PASSWORD="<tu-password>" \
-./mvnw spring-boot:run
-```
-
-Hibernate crea las tablas. `db_bank_management.sql` es un dump de MySQL y no se puede importar
-tal cual en Postgres; crea un usuario y su cuenta con la API (`POST /api/v1/people`, `POST /api/v1/customers`).
 
 ## Tests
 
@@ -43,7 +48,7 @@ tal cual en Postgres; crea un usuario y su cuenta con la API (`POST /api/v1/peop
 ./mvnw test
 ```
 
-Los tests usan H2 en memoria, no necesitan MySQL ni Supabase.
+Los tests usan H2 en memoria, no necesitan MySQL ni Docker.
 
 ## Depositos y retiros
 

@@ -1,0 +1,37 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-1407}
+      MYSQL_DATABASE: bank_management
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      # Solo se ejecuta la primera vez, cuando el volumen esta vacio
+      - ./db_bank_management.sql:/docker-entrypoint-initdb.d/01-bank_management.sql:ro
+      - db_data:/var/lib/mysql
+    ports:
+      # 3307 en tu PC para no chocar con un MySQL que ya tengas instalado
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-1407}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    # Si la base aun no esta lista (por ejemplo al reiniciar), la app vuelve a intentar
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://db:3306/bank_management?allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-1407}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
