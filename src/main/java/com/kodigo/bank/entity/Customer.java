@@ -1,5 +1,6 @@
 package com.kodigo.bank.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,6 +22,7 @@ public class Customer {
     @JoinColumn(name = "id")
     private People people;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private List<BankLoan> bankLoans;
 }

@@ -2,12 +2,14 @@ package com.kodigo.bank.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 // Transaction.java
 @Data
+@NoArgsConstructor // JPA necesita un constructor vacio para leer registros
 @Entity
 @Table(name = "transaction")
 public class Transaction {
@@ -16,7 +18,7 @@ public class Transaction {
     @Column(name = "transaction_Id")
     private Long transactionId;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TransactionTypeConverter.class)
     private TransactionType type;
 
     private BigDecimal amount;

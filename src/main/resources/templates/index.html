@@ -40,7 +40,7 @@
 							<li>
 								<hr class="dropdown-divider">
 							</li>
-							<li><a class="dropdown-item" href="/login">Sign out</a></li>
+							<li><a class="dropdown-item" href="/logout">Sign out</a></li>
 						</ul>
 					</div>
 				</div>
@@ -55,16 +55,16 @@
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                 <li class="nav-item">
-                                    <a class="nav-link active" aria-current="page" href="/withdraw?customerId=<%= user.getId()">Withdraw</a>
+                                    <a class="nav-link active" aria-current="page" href="/withdraw">Withdraw</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/deposit?customerId=<%= user.getId() %>">Deposit</a>
+                                    <a class="nav-link" href="/deposit">Deposit</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="/loan-management?customerId=<%= user.getId()">Loan</a>
+                                    <a class="nav-link" href="/loan-management">Loan</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="card-management?customerId=<%= user.getId()">Card</a>
+                                    <a class="nav-link" href="card-management">Card</a>
                                 </li>
                             </ul>
                         </div>
