@@ -17,10 +17,10 @@ public class BankLoan {
     private long duration;
 
     @ManyToOne
-    @JoinColumn(name = "customerId") //llave foranea a la tabla/clase Customer
+    @JoinColumn(name = "customer_id") //llave foranea a la tabla/clase Customer
     private Customer customer;
     @ManyToOne
-    @JoinColumn(name = "bankId") //llave foranea a la tabla/clase Bank
+    @JoinColumn(name = "bank_id") //llave foranea a la tabla/clase Bank
     private Bank bank;
 
 

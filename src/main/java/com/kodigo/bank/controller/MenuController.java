@@ -1,5 +1,6 @@
 package com.kodigo.bank.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -7,14 +8,46 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MenuController {
 
     @GetMapping("/")
-    public String login() {
-        return "login";
-    }
-    @GetMapping("/index")
-    public String index() {
-        return "index";
+    public String home() {
+        return "redirect:/index";
     }
 
+    @GetMapping("/index")
+    public String index(Authentication authentication) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isCustomer = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CUSTOMER"));
+        return isAdmin && !isCustomer ? "redirect:/admin" : "index";
+    }
+
+    @GetMapping("/transfer")
+    public String transfer() {
+        return "transfer";
+    }
+
+    @GetMapping("/withdraw")
+    public String withdraw() {
+        return "withdraw";
+    }
+
+    @GetMapping("/deposit")
+    public String deposit() {
+        return "deposit";
+    }
+
+    // Simulador de cajero automatico: una pagina independiente que habla con la API de cajeros
+    @GetMapping("/atm")
+    public String atm() {
+        return "atm";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
+
+    // Paginas de administracion de prestamos y tarjetas (2024, pendientes de terminar)
     @GetMapping("/bank-loan")
     public String bankLoan() {
         return "BankLoan";
@@ -43,15 +76,5 @@ public class MenuController {
     @GetMapping("/credit-card")
     public String creditCard() {
         return "CreditCard";
-    }
-
-    @GetMapping("/withdraw")
-    public String withdraw() {
-        return "Withdraw";
-    }
-
-    @GetMapping("/deposit")
-    public String deposit() {
-        return "Deposit";
     }
 }

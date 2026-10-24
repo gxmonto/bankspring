@@ -7,9 +7,8 @@ services:
       MYSQL_DATABASE: bank_management
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
     volumes:
-      # Solo se ejecuta la primera vez, cuando el volumen esta vacio
-      - ./db_bank_management.sql:/docker-entrypoint-initdb.d/01-bank_management.sql:ro
-      - db_data:/var/lib/mysql
+      # Las tablas las crea la app con Flyway (src/main/resources/db/migration)
+      - mysql_data:/var/lib/mysql
     ports:
       # 3307 en tu PC para no chocar con un MySQL que ya tengas instalado
       - "3307:3306"
@@ -34,4 +33,4 @@ services:
         condition: service_healthy
 
 volumes:
-  db_data:
+  mysql_data:

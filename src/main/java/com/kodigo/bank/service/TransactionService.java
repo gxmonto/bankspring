@@ -20,12 +20,4 @@ public class TransactionService {
     public Optional<Transaction> getTransaction(Long id) {
         return transactionRepository.findById(id);
     }
-
-    public void saveOrUpdate(Transaction transaction) {
-        transactionRepository.save(transaction);
-    }
-
-    public void delete(Long id) {
-        transactionRepository.deleteById(id);
-    }
 }

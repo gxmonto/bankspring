@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(path = "api/v1/customers")
 public class CustomerController {

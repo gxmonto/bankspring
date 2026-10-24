@@ -12,7 +12,7 @@ import java.util.Date;
 public class CardPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_Id")
+    @Column(name = "payment_id")
     private Long paymentId;
 
     private BigDecimal amount;
@@ -20,6 +20,6 @@ public class CardPayment {
     private Date date;
 
     @ManyToOne
-    @JoinColumn(name = "card_Id")
+    @JoinColumn(name = "card_id")
     private CreditCard creditCard;
 }

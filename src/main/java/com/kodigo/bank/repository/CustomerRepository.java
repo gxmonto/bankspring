@@ -14,5 +14,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     @Query("SELECT c.balance FROM Customer c WHERE c.customerId = :customerId")
     BigDecimal getBalance(@Param("customerId") Long customerId);
 
-    Optional<Customer> findFirstByPeopleId(Long peopleId);
+    Optional<Customer> findFirstByPeopleUsername(String username);
+
+    Optional<Customer> findByAccountNumber(String accountNumber);
+
+    boolean existsByAccountNumber(String accountNumber);
 }

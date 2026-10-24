@@ -8,11 +8,11 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "Bank")
+@Table(name = "bank")
 public class Bank {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bank_Id")
+    @Column(name = "bank_id")
     private Long bankId;
     private String bankName;
     private String address;

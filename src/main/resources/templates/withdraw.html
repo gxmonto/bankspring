@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cardless withdrawal')}"></head>
+<body class="index">
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <nav th:replace="~{fragments/layout :: sidebar('withdraw')}"></nav>
+        <div class="col p-3">
+            <main class="app-main p-4">
+                <h1 class="fw-bold">Cardless withdrawal</h1>
+                <p class="text-body-secondary">
+                    Generate a one-time code and use it at any e-Bank ATM. The amount is reserved until the code
+                    is used, cancelled or expires (<span th:text="${@environment.getProperty('bank.withdrawal-code.ttl-minutes')}">30</span> minutes).
+                    Available: <strong id="available">...</strong>
+                </p>
+
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <form id="code-form" class="card stat-card p-4">
+                            <label class="form-label">Amount to withdraw</label>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <button type="button" class="btn btn-outline-secondary preset" data-amount="20">$20</button>
+                                <button type="button" class="btn btn-outline-secondary preset" data-amount="50">$50</button>
+                                <button type="button" class="btn btn-outline-secondary preset" data-amount="100">$100</button>
+                                <button type="button" class="btn btn-outline-secondary preset" data-amount="200">$200</button>
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="amount" min="10" max="1000" step="10" required>
+                            </div>
+                            <div class="form-text mb-3">Multiples of $10, up to $1,000</div>
+                            <button type="submit" class="btn btn-dark w-100"><i class="bi bi-key"></i> Generate code</button>
+                            <div id="message" class="d-none"></div>
+                        </form>
+
+                        <div id="new-code" class="card stat-card p-4 mt-4 text-center d-none border border-success">
+                            <div class="text-body-secondary">Your withdrawal code</div>
+                            <div class="code-display my-2" id="code"></div>
+                            <div class="fs-5">for <strong id="code-amount"></strong></div>
+                            <div class="small text-body-secondary mt-2">Expires in <strong id="countdown"></strong>.
+                                It will not be shown again.</div>
+                            <a th:href="@{/atm}" target="_blank" class="btn btn-success mt-3">
+                                <i class="bi bi-pc-display"></i> Go to the ATM simulator</a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <h2 class="h5">Your codes</h2>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th>Code</th><th>Amount</th><th>Created</th><th>Status</th><th></th></tr></thead>
+                                <tbody id="codes"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script th:replace="~{fragments/layout :: bootstrap}"></script>
+<script>
+    const message = document.getElementById('message');
+    const BADGES = { ACTIVE: 'success', REDEEMED: 'primary', CANCELLED: 'secondary', EXPIRED: 'warning' };
+    let countdownTimer;
+
+    async function load() {
+        const account = await Bank.api('GET', '/api/v1/account');
+        document.getElementById('available').textContent = Bank.money(account.available);
+
+        const codes = await Bank.api('GET', '/api/v1/account/withdrawal-codes');
+        document.getElementById('codes').innerHTML = codes.length === 0
+            ? '<tr><td colspan="5" class="text-body-secondary">No codes yet</td></tr>'
+            : codes.map(c => '<tr>' +
+                '<td class="font-monospace">******' + Bank.escape(c.codeHint) + '</td>' +
+                '<td>' + Bank.money(c.amount) + '</td>' +
+                '<td class="text-nowrap small">' + Bank.dateTime(c.createdAt) + '</td>' +
+                '<td><span class="badge text-bg-' + BADGES[c.displayStatus] + '">' + c.displayStatus + '</span>' +
+                (c.atmCode ? '<div class="small text-body-secondary">at ' + Bank.escape(c.atmCode) + '</div>' : '') + '</td>' +
+                '<td>' + (c.displayStatus === 'ACTIVE'
+                    ? '<button class="btn btn-sm btn-outline-danger" onclick="cancelCode(' + c.id + ')">Cancel</button>' : '') + '</td>' +
+                '</tr>').join('');
+    }
+
+    async function cancelCode(id) {
+        if (!confirm('Cancel this code? The reserved money will be available again.')) {
+            return;
+        }
+        try {
+            await Bank.api('DELETE', '/api/v1/account/withdrawal-codes/' + id);
+            document.getElementById('new-code').classList.add('d-none');
+            load();
+        } catch (e) {
+            Bank.showMessage(message, e.message, 'danger');
+        }
+    }
+
+    function startCountdown(expiresAt) {
+        clearInterval(countdownTimer);
+        const end = new Date(expiresAt).getTime();
+        const tick = () => {
+            const seconds = Math.max(0, Math.round((end - Date.now()) / 1000));
+            document.getElementById('countdown').textContent =
+                Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+            if (seconds === 0) {
+                clearInterval(countdownTimer);
+                load();
+            }
+        };
+        tick();
+        countdownTimer = setInterval(tick, 1000);
+    }
+
+    document.querySelectorAll('.preset').forEach(button =>
+        button.addEventListener('click', () => document.getElementById('amount').value = button.dataset.amount));
+
+    document.getElementById('code-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            const created = await Bank.api('POST', '/api/v1/account/withdrawal-codes',
+                { amount: document.getElementById('amount').value });
+            document.getElementById('code').textContent = created.code.replace(/(\d{4})(\d{4})/, '$1 $2');
+            document.getElementById('code-amount').textContent = Bank.money(created.amount);
+            document.getElementById('new-code').classList.remove('d-none');
+            message.className = 'd-none';
+            startCountdown(created.expiresAt);
+            load();
+        } catch (e) {
+            Bank.showMessage(message, e.message, 'danger');
+        }
+    });
+
+    load().catch(e => Bank.showMessage(message, e.message, 'danger'));
+</script>
+</body>
+</html>

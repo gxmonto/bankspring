@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Deposit')}"></head>
+<body class="index">
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <nav th:replace="~{fragments/layout :: sidebar('deposit')}"></nav>
+        <div class="col p-3">
+            <main class="app-main p-4">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h1 class="fw-bold">Deposit money</h1>
+                        <p class="text-body-secondary">Money can't be added from the website: like in a real bank,
+                            it has to come from somewhere. These are the ways to fund your account:</p>
+
+                        <div class="card stat-card p-4 mb-4 text-center">
+                            <div class="text-body-secondary">Your account number</div>
+                            <div class="code-display my-2" id="account-number">...</div>
+                            <div class="text-body-secondary" id="holder"></div>
+                            <div><button class="btn btn-sm btn-outline-secondary mt-2" id="copy"><i class="bi bi-clipboard"></i> Copy</button></div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card stat-card p-4 h-100">
+                                    <h2 class="h5"><i class="bi bi-pc-display"></i> Cash at an ATM</h2>
+                                    <p class="mb-3">Choose <em>Cash deposit</em> at any e-Bank ATM, enter your account number
+                                        and insert the bills. The money is available immediately.</p>
+                                    <a th:href="@{/atm}" target="_blank" class="btn btn-dark mt-auto">Open the ATM simulator</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card stat-card p-4 h-100">
+                                    <h2 class="h5"><i class="bi bi-arrow-left-right"></i> Transfer from another account</h2>
+                                    <p class="mb-3">Share your account number with someone who banks with e-Bank.
+                                        In the demo, sign in as <code>maria</code> and transfer to your account.</p>
+                                    <a th:href="@{/transfer}" class="btn btn-outline-dark mt-auto">Make a transfer</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+<script th:replace="~{fragments/layout :: bootstrap}"></script>
+<script>
+    Bank.api('GET', '/api/v1/account').then(account => {
+        document.getElementById('account-number').textContent = account.accountNumber;
+        document.getElementById('holder').textContent = account.holderName;
+        document.getElementById('copy').addEventListener('click', () => navigator.clipboard.writeText(account.accountNumber));
+    });
+</script>
+</body>
+</html>

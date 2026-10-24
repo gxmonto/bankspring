@@ -3,16 +3,16 @@ package com.kodigo.bank.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+// Un administrador es una persona (People) con permisos extra; comparte su id.
 @Data
 @Entity
 @Table(name = "administrator")
 public class Administrator {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "admin_Id")
+    @Column(name = "admin_id")
     private Long adminId;
 
-    @OneToOne
-    @JoinColumn(name = "admin_Id")
+    @ManyToOne
+    @JoinColumn(name = "admin_id", insertable = false, updatable = false)
     private People people;
 }

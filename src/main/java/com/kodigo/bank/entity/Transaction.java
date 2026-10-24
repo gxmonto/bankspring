@@ -1,13 +1,16 @@
 package com.kodigo.bank.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-// Transaction.java
+// Cada movimiento de dinero de una cuenta. Nunca se edita ni se borra: es el historial.
 @Data
 @NoArgsConstructor // JPA necesita un constructor vacio para leer registros
 @Entity
@@ -15,25 +18,35 @@ import java.util.Date;
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "transaction_Id")
+    @Column(name = "transaction_id")
     private Long transactionId;
 
-    @Convert(converter = TransactionTypeConverter.class)
+    // Se guarda como texto (VARCHAR), igual en MySQL y en H2
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 20)
     private TransactionType type;
 
     private BigDecimal amount;
 
-    private Date date;
+    // Saldo de la cuenta justo despues de este movimiento, como en un estado de cuenta
+    private BigDecimal balanceAfter;
 
+    private String description;
+
+    private LocalDateTime date;
+
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "customer_Id")
+    @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    // Add a constructor that takes the required parameters
-    public Transaction(TransactionType type, BigDecimal amount, Date date, Customer customer) {
+    public Transaction(TransactionType type, BigDecimal amount, BigDecimal balanceAfter, String description, Customer customer) {
         this.type = type;
         this.amount = amount;
-        this.date = date;
+        this.balanceAfter = balanceAfter;
+        this.description = description;
+        this.date = LocalDateTime.now();
         this.customer = customer;
     }
 }

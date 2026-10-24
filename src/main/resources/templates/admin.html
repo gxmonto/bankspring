@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin')}"></head>
+<body class="index">
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        <nav th:replace="~{fragments/layout :: sidebar('admin')}"></nav>
+        <div class="col p-3">
+            <main class="app-main p-4">
+                <h1 class="fw-bold">Administration</h1>
+                <p class="text-body-secondary">Admins can see every account but can't change balances directly:
+                    money only moves through deposits, withdrawals and transfers, so every change is in the history.</p>
+
+                <h2 class="h5 mt-4">Accounts</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Account</th><th>Holder</th><th>Username</th><th>Type</th><th class="text-end">Balance</th></tr></thead>
+                        <tbody id="customers"><tr><td colspan="5">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="h5 mt-4">Loans and cards</h2>
+                <p class="text-body-secondary small">Pages from the original 2024 project, not finished yet.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:href="@{/loan-management}" class="btn btn-outline-dark">Loan management</a>
+                    <a th:href="@{/card-management}" class="btn btn-outline-dark">Card management</a>
+                </div>
+                <div id="message" class="d-none"></div>
+            </main>
+        </div>
+    </div>
+</div>
+<script th:replace="~{fragments/layout :: bootstrap}"></script>
+<script>
+    Bank.api('GET', '/api/v1/customers').then(customers => {
+        document.getElementById('customers').innerHTML = customers.map(c => '<tr>' +
+            '<td class="font-monospace">' + Bank.escape(c.accountNumber) + '</td>' +
+            '<td>' + Bank.escape(c.people ? c.people.name + ' ' + c.people.surname : '-') + '</td>' +
+            '<td>' + Bank.escape(c.people ? c.people.username : '-') + '</td>' +
+            '<td>' + Bank.escape(c.accountType) + '</td>' +
+            '<td class="text-end">' + Bank.money(c.balance) + '</td>' +
+            '</tr>').join('');
+    }).catch(e => Bank.showMessage(document.getElementById('message'), e.message, 'danger'));
+</script>
+</body>
+</html>

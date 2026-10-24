@@ -17,6 +17,6 @@ public class LoanPayment {
     private LocalDate date;
 
     @ManyToOne
-    @JoinColumn(name = "loanId")
+    @JoinColumn(name = "loan_id")
     private BankLoan bankLoan;
 }

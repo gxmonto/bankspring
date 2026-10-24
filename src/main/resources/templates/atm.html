@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM simulator | e-Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background: #1f2933; min-height: 100vh; }
+        .atm { max-width: 520px; margin: 2rem auto; background: linear-gradient(#4b5563, #374151); border-radius: 1.5rem;
+               padding: 1.5rem; box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, .5); }
+        .atm-header { color: #fff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .screen { background: linear-gradient(#0b3d91, #062a66); color: #e8f0ff; border-radius: .75rem; min-height: 330px;
+                  padding: 1.5rem; border: 6px solid #111827; font-family: "Courier New", monospace; }
+        .screen h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; }
+        .screen .form-control { font-family: "Courier New", monospace; font-size: 1.4rem; text-align: center; letter-spacing: .2rem; }
+        .screen .btn { font-family: system-ui, sans-serif; }
+        .menu-btn { display: block; width: 100%; text-align: left; padding: .9rem 1rem; margin-bottom: .75rem; font-size: 1.1rem; }
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-top: 1.25rem; }
+        .keypad button { padding: .8rem 0; font-size: 1.2rem; font-weight: 700; border-radius: .5rem; border: 0;
+                         background: #d1d5db; box-shadow: 0 3px 0 #6b7280; }
+        .keypad button:active { transform: translateY(2px); box-shadow: 0 1px 0 #6b7280; }
+        .keypad .k-cancel { background: #ef4444; color: #fff; }
+        .keypad .k-clear { background: #f59e0b; }
+        .keypad .k-enter { background: #22c55e; color: #fff; }
+        .slot { height: 14px; background: #111827; border-radius: 7px; margin: 1.25rem 15% 0; }
+        .bills { display: flex; justify-content: center; gap: .3rem; margin: 1rem 0; }
+        .bill { width: 70px; height: 34px; background: #4ade80; border: 2px solid #15803d; border-radius: 4px;
+                animation: dispense 1s ease-out both; }
+        .bill:nth-child(2) { animation-delay: .2s; } .bill:nth-child(3) { animation-delay: .4s; }
+        @keyframes dispense { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .receipt { background: #fff; color: #111; font-size: .9rem; padding: 1rem; border-radius: .25rem; }
+        .hint { color: #9ca3af; font-size: .85rem; text-align: center; margin-top: 1rem; }
+        .hint a { color: #93c5fd; }
+    </style>
+</head>
+<body>
+<!-- Simulador de cajero automatico. Habla con la API de cajeros (/api/atm/v1) usando las
+     credenciales de la maquina (X-ATM-ID / X-ATM-KEY), igual que lo haria un cajero real. -->
+<div class="atm">
+    <div class="atm-header">
+        <div class="fw-bold fs-5"><i class="bi bi-bank"></i> e-Bank ATM</div>
+        <div class="small" id="atm-label">not configured</div>
+    </div>
+
+    <div class="screen" id="screen"></div>
+
+    <div class="keypad" id="keypad">
+        <button>1</button><button>2</button><button>3</button><button class="k-cancel" data-key="cancel">CANCEL</button>
+        <button>4</button><button>5</button><button>6</button><button class="k-clear" data-key="clear">CLEAR</button>
+        <button>7</button><button>8</button><button>9</button><button class="k-enter" data-key="enter">ENTER</button>
+        <button style="visibility: hidden"></button><button>0</button><button>.</button><button style="visibility: hidden"></button>
+    </div>
+    <div class="slot"></div>
+</div>
+<div class="hint">
+    Get a code in <a th:href="@{/withdraw}" target="_blank">Cardless withdrawal</a> (sign in as <code>gustavo</code> / <code>demo123</code>).
+    <a href="#" id="reconfigure">Configure ATM</a>
+</div>
+
+<script>
+    const DEMO = { id: 'ATM-001', key: 'demo-atm-key-001' };
+    const screen = document.getElementById('screen');
+    let config = load() || null;
+    let focused = null;
+    let onEnter = null;
+
+    function load() {
+        try { return JSON.parse(sessionStorage.getItem('atm-config')); } catch (e) { return null; }
+    }
+
+    function save(value) {
+        try { sessionStorage.setItem('atm-config', JSON.stringify(value)); } catch (e) { /* sin storage: solo en memoria */ }
+    }
+
+    function esc(text) {
+        const div = document.createElement('div');
+        div.textContent = text == null ? '' : String(text);
+        return div.innerHTML;
+    }
+
+    function money(value) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value));
+    }
+
+    async function api(method, path, body) {
+        const response = await fetch('/api/atm/v1' + path, {
+            method,
+            headers: { 'Content-Type': 'application/json', 'X-ATM-ID': config.id, 'X-ATM-KEY': config.key },
+            body: body ? JSON.stringify(body) : undefined
+        });
+        if (response.status === 401 || response.status === 403) {
+            throw new Error('This ATM is not authorized by the bank. Check its ID and key.');
+        }
+        const data = await response.json().catch(() => null);
+        if (!response.ok) {
+            throw new Error(data && data.error ? data.error : 'Communication error with the bank');
+        }
+        return data;
+    }
+
+    // Muestra una pantalla. `enter` es lo que hace la tecla ENTER en esa pantalla.
+    function show(html, enter) {
+        screen.innerHTML = html;
+        onEnter = enter || null;
+        focused = screen.querySelector('input');
+        screen.querySelectorAll('input').forEach(input => input.addEventListener('focus', () => focused = input));
+        if (focused) focused.focus();
+    }
+
+    function setupScreen() {
+        show(`<h2>ATM configuration</h2>
+            <p class="small">Machine credentials registered in the bank. Demo values are prefilled.</p>
+            <label class="small">ATM ID</label>
+            <input class="form-control mb-2" id="atm-id" value="${esc(config ? config.id : DEMO.id)}">
+            <label class="small">API key</label>
+            <input class="form-control mb-3" id="atm-key" value="${esc(config ? config.key : DEMO.key)}">
+            <button class="btn btn-light w-100" onclick="saveSetup()">Start ATM</button>`, saveSetup);
+    }
+
+    function saveSetup() {
+        config = { id: document.getElementById('atm-id').value.trim(), key: document.getElementById('atm-key').value.trim() };
+        save(config);
+        document.getElementById('atm-label').textContent = config.id;
+        homeScreen();
+    }
+
+    function homeScreen() {
+        show(`<h2>Welcome to e-Bank</h2>
+            <p>Please choose an operation</p>
+            <button class="btn btn-light menu-btn" onclick="withdrawScreen()"><i class="bi bi-phone"></i> Cardless withdrawal</button>
+            <button class="btn btn-light menu-btn" onclick="depositScreen()"><i class="bi bi-cash-stack"></i> Cash deposit</button>`);
+    }
+
+    function withdrawScreen() {
+        show(`<h2>Cardless withdrawal</h2>
+            <label class="small">Withdrawal code (8 digits)</label>
+            <input class="form-control mb-3" id="code" inputmode="numeric" maxlength="8" autocomplete="off">
+            <label class="small">Amount</label>
+            <input class="form-control mb-3" id="amount" inputmode="decimal">
+            <button class="btn btn-light w-100" onclick="withdraw()">Withdraw</button>`, withdraw);
+    }
+
+    async function withdraw() {
+        const code = document.getElementById('code').value.trim();
+        const amount = document.getElementById('amount').value.trim();
+        processing();
+        try {
+            const receipt = await api('POST', '/withdrawals', { code, amount });
+            show(`<h2>Please take your cash</h2>
+                <div class="bills"><div class="bill"></div><div class="bill"></div><div class="bill"></div></div>
+                <p class="text-center fs-4 fw-bold">${money(receipt.amount)}</p>
+                ${receiptHtml(receipt)}`, homeScreen);
+        } catch (e) {
+            errorScreen(e.message);
+        }
+    }
+
+    function depositScreen() {
+        show(`<h2>Cash deposit</h2>
+            <label class="small">Destination account number</label>
+            <input class="form-control mb-3" id="account" placeholder="1000-0001" autocomplete="off">
+            <button class="btn btn-light w-100" onclick="lookupAccount()">Continue</button>`, lookupAccount);
+    }
+
+    async function lookupAccount() {
+        const account = document.getElementById('account').value.trim();
+        processing();
+        try {
+            const holder = await api('GET', '/accounts/' + encodeURIComponent(account));
+            show(`<h2>Cash deposit</h2>
+                <p>Account <strong>${esc(holder.accountNumber)}</strong><br>Holder: <strong>${esc(holder.holderName)}</strong></p>
+                <p class="small mb-1">Insert bills:</p>
+                <div class="d-flex gap-2 mb-2">
+                    ${[10, 20, 50, 100].map(b => `<button class="btn btn-sm btn-success flex-fill" onclick="insertBill(${b})">+${b}</button>`).join('')}
+                </div>
+                <input class="form-control mb-3" id="deposit-amount" value="0" inputmode="decimal">
+                <button class="btn btn-light w-100" onclick="deposit('${esc(holder.accountNumber)}')">Confirm deposit</button>`,
+                () => deposit(holder.accountNumber));
+        } catch (e) {
+            errorScreen(e.message);
+        }
+    }
+
+    function insertBill(value) {
+        const input = document.getElementById('deposit-amount');
+        input.value = Number(input.value || 0) + value;
+    }
+
+    async function deposit(accountNumber) {
+        const amount = document.getElementById('deposit-amount').value.trim();
+        processing();
+        try {
+            const receipt = await api('POST', '/deposits', { accountNumber, amount });
+            show(`<h2>Deposit completed</h2>${receiptHtml(receipt)}`, homeScreen);
+        } catch (e) {
+            errorScreen(e.message);
+        }
+    }
+
+    function receiptHtml(r) {
+        return `<div class="receipt">
+                <div class="text-center fw-bold">e-Bank - ${esc(r.atmCode)}</div>
+                <div>${new Date(r.date).toLocaleString()}</div>
+                <div>Operation: ${esc(r.operation)}</div>
+                <div>Account: ${esc(r.accountNumber)}</div>
+                <div>Holder: ${esc(r.holderName)}</div>
+                <div>Amount: <strong>${money(r.amount)}</strong></div>
+                <div>Reference: ${esc(r.reference)}</div>
+            </div>
+            <button class="btn btn-light w-100 mt-3" onclick="homeScreen()">Finish</button>`;
+    }
+
+    function processing() {
+        show('<h2>Processing...</h2><p>Connecting to the bank, please wait.</p>');
+    }
+
+    function errorScreen(text) {
+        show(`<h2><i class="bi bi-exclamation-triangle"></i> Operation declined</h2>
+            <p id="error">${esc(text)}</p>
+            <button class="btn btn-light w-100" onclick="homeScreen()">Back</button>`, homeScreen);
+    }
+
+    document.getElementById('keypad').addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+        const key = button.dataset.key || button.textContent;
+        if (key === 'cancel') return config ? homeScreen() : setupScreen();
+        if (key === 'enter') return onEnter && onEnter();
+        if (!focused) return;
+        if (key === 'clear') focused.value = '';
+        else focused.value += key;
+        focused.focus();
+    });
+
+    screen.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && onEnter) {
+            event.preventDefault();
+            onEnter();
+        }
+    });
+
+    document.getElementById('reconfigure').addEventListener('click', (event) => {
+        event.preventDefault();
+        setupScreen();
+    });
+
+    if (config) {
+        document.getElementById('atm-label').textContent = config.id;
+        homeScreen();
+    } else {
+        setupScreen();
+    }
+</script>
+</body>
+</html>

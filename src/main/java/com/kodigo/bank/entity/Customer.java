@@ -9,21 +9,22 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "Customer")
+@Table(name = "customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "customer_Id")
+    @Column(name = "customer_id")
     private Long customerId;
-    private String account_Type;
+    @Column(name = "account_number", unique = true, nullable = false, length = 20)
+    private String accountNumber;
+    private String accountType;
     private BigDecimal balance;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "people_id")
     private People people;
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer")
     private List<BankLoan> bankLoans;
 }
-

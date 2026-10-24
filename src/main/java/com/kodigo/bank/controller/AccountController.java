@@ -1,72 +1,58 @@
 package com.kodigo.bank.controller;
 
+import com.kodigo.bank.dto.AccountSummary;
 import com.kodigo.bank.dto.AmountRequest;
+import com.kodigo.bank.dto.TransferRequest;
+import com.kodigo.bank.dto.WithdrawalCodeCreated;
 import com.kodigo.bank.entity.Transaction;
-import com.kodigo.bank.exception.InsufficientFundsException;
-import com.kodigo.bank.service.CustomerService;
-import jakarta.servlet.http.HttpSession;
+import com.kodigo.bank.entity.WithdrawalCode;
+import com.kodigo.bank.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
-// Operaciones de la cuenta del usuario que inicio sesion.
-// El customerId se toma de la sesion (cookie JSESSIONID), no del navegador,
-// asi nadie puede depositar o retirar de una cuenta ajena cambiando la URL.
+// Banca en linea del cliente que inicio sesion. La cuenta siempre sale del usuario
+// autenticado, nunca de un id que mande el navegador.
 @RestController
 @RequestMapping(path = "api/v1/account")
 public class AccountController {
     @Autowired
-    private CustomerService customerService;
+    private AccountService accountService;
 
-    @GetMapping("/balance")
-    public Map<String, BigDecimal> getBalance(HttpSession session) {
-        return Map.of("balance", customerService.getBalance(currentCustomerId(session)));
+    @GetMapping
+    public AccountSummary getSummary(Principal principal) {
+        return accountService.getSummary(principal.getName());
     }
 
     @GetMapping("/transactions")
-    public List<Transaction> getTransactions(HttpSession session) {
-        return customerService.getTransactions(currentCustomerId(session));
+    public List<Transaction> getTransactions(Principal principal) {
+        return accountService.getTransactions(principal.getName());
     }
 
-    @PostMapping("/deposit")
-    public Map<String, BigDecimal> deposit(@RequestBody AmountRequest request, HttpSession session) {
-        return Map.of("balance", customerService.deposit(currentCustomerId(session), request.getAmount()));
+    @PostMapping("/transfers")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Transaction transfer(@Valid @RequestBody TransferRequest request, Principal principal) {
+        return accountService.transfer(principal.getName(), request.toAccountNumber(), request.amount(), request.description());
     }
 
-    @PostMapping("/withdraw")
-    public Map<String, BigDecimal> withdraw(@RequestBody AmountRequest request, HttpSession session) {
-        return Map.of("balance", customerService.withdraw(currentCustomerId(session), request.getAmount()));
+    @GetMapping("/withdrawal-codes")
+    public List<WithdrawalCode> getWithdrawalCodes(Principal principal) {
+        return accountService.getWithdrawalCodes(principal.getName());
     }
 
-    private Long currentCustomerId(HttpSession session) {
-        Object customerId = session.getAttribute(LoginController.CUSTOMER_ID);
-        if (customerId == null) {
-            throw new NotLoggedInException();
-        }
-        return (Long) customerId;
+    @PostMapping("/withdrawal-codes")
+    @ResponseStatus(HttpStatus.CREATED)
+    public WithdrawalCodeCreated createWithdrawalCode(@Valid @RequestBody AmountRequest request, Principal principal) {
+        return accountService.createWithdrawalCode(principal.getName(), request.amount());
     }
 
-    @ExceptionHandler(NotLoggedInException.class)
-    public ResponseEntity<Map<String, String>> handleNotLoggedIn() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Please log in"));
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class, InsufficientFundsException.class})
-    public ResponseEntity<Map<String, String>> handleBadRequest(RuntimeException e) {
-        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-    }
-
-    static class NotLoggedInException extends RuntimeException {
+    @DeleteMapping("/withdrawal-codes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelWithdrawalCode(@PathVariable Long id, Principal principal) {
+        accountService.cancelWithdrawalCode(principal.getName(), id);
     }
 }
